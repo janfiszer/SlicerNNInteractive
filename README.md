@@ -168,7 +168,8 @@ Each button in the Interactive Prompts tab has a keyboard shortcut, indicated by
 How to run the test from Slicer:
 1. Start the nnInteractive server and note its URL/port.
 2. Launch Slicer, (optionally) load the `SlicerNNInteractive` module via the Extension Wizard, and configure the module with the server URL (under the `Configuration` tab).
-3. Open the `Self Tests` module, pick `SlicerNNInteractive`, and click `Reload and Test` (or use the toolbar’s `Reload and Test` button in the module itself). Slicer will re-import the module, execute the scripted prompts, and a "All SlicerNNInteractive segmentation tests passed" message will be in the Python Console if everything matches the stored references.
+3. Make sure `Developer Mode` is enabled in Slicer. You can verify this by going to `Edit > Application Settings > Developer`, and making sure `Enable developer mode:` is checked.
+4. Open the `Self Tests` module, pick `SlicerNNInteractive`, and click `Reload and Test` (or use the toolbar’s `Reload and Test` button in the module itself). Slicer will re-import the module, execute the scripted prompts, and a "All SlicerNNInteractive segmentation tests passed" message will be in the Python Console if everything matches the stored references.
 
 Reference outputs are stored at `slicer_plugin/SlicerNNInteractive/Testing/Data/` (compressed NIfTI files). When running these tests, you do not have to regenerate these. If, for any reason you would still like to do so, set `SLICER_NNI_GENERATE_TEST_MASK=1` before launching Slicer (or uncomment the line `self.generate_mode = True` in `SlicerNNInteractiveSegmentationTest.setUp`), run the test once, manually review the newly written masks, then rerun without the variable so the test compares against the frozen references.
 
