@@ -25,7 +25,11 @@ RUN /bin/bash -c "\
 
 RUN echo "Conda env nnInteractive created"
 
-RUN /opt/conda/envs/nnInteractive/bin/python3.12 -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+RUN /opt/conda/envs/nnInteractive/bin/python3.12 -m pip uninstall -y torch torchvision torchaudio
+
+RUN /opt/conda/envs/nnInteractive/bin/python3.12 -m pip install \
+  torch==2.8.0 torchvision torchaudio \
+  --index-url https://download.pytorch.org/whl/cu128
 
 WORKDIR /opt/server
 
