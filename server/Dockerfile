@@ -1,6 +1,7 @@
 FROM nvidia/cuda:12.1.0-devel-ubuntu20.04
 
-RUN apt-get update && apt-get install -y wget
+RUN apt-get update && apt-get install -y wget && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m user 
 
@@ -27,7 +28,7 @@ RUN echo "Conda env nnInteractive created"
 
 RUN /opt/conda/envs/nnInteractive/bin/python3.12 -m pip uninstall -y torch torchvision torchaudio
 
-RUN /opt/conda/envs/nnInteractive/bin/python3.12 -m pip install \
+RUN /opt/conda/envs/nnInteractive/bin/python3.12 -m pip install --no-cache-dir \
   torch==2.8.0 torchvision torchaudio \
   --index-url https://download.pytorch.org/whl/cu128
 
@@ -36,7 +37,7 @@ WORKDIR /opt/server
 COPY nninteractive_slicer_server/main.py main.py
 COPY requirements.txt requirements.txt
 
-RUN /opt/conda/envs/nnInteractive/bin/python3.12 -m pip install -r requirements.txt
+RUN /opt/conda/envs/nnInteractive/bin/python3.12 -m pip install --no-cache-dir -r requirements.txt
 
 RUN chown -R user:user /opt/server
 

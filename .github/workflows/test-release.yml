@@ -60,6 +60,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     steps:
+      - name: Free up disk space
+        run: |
+          # Free up disk space on GitHub Actions runner
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h
+
       - name: Check out code
         uses: actions/checkout@v4
 
