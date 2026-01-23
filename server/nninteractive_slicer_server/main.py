@@ -435,4 +435,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print(f"torch.__version__: {torch.__version__}")
     main()
