@@ -4,9 +4,51 @@ This guide explains how to use the CI/CD workflows for nnInteractive Slicer Serv
 
 ## 🔧 Initial Setup
 
-The workflows use **GitHub Environments** for better security and separation of test vs. production credentials.
+### Step 1: Set Up Trusted Publishing for PyPI/TestPyPI
 
-### Step 1: Create Environments
+The workflows use **Trusted Publishing** (OpenID Connect) - the modern, secure way to publish to PyPI without API tokens.
+
+#### For TestPyPI (test releases):
+
+**Set up Trusted Publisher on TestPyPI** (before package exists):
+
+1. Go to: https://test.pypi.org/manage/account/publishing/
+2. Scroll to **"Pending publishers"** section
+3. Click **"Add a new pending publisher"**
+4. Fill in:
+   - **PyPI Project Name**: `nninteractive-slicer-server`
+   - **Owner**: `coendevente` (your GitHub username/org)
+   - **Repository name**: `SlicerNNInteractive`
+   - **Workflow filename**: `test-release.yml`
+   - **Environment name**: `test`
+5. Click **"Add"**
+
+This creates a "reservation" that allows your GitHub workflow to create and publish the package automatically on first release.
+
+#### For PyPI (production releases):
+
+**Set up Trusted Publisher on PyPI** (before package exists):
+
+1. Go to: https://pypi.org/manage/account/publishing/
+2. Scroll to **"Pending publishers"** section
+3. Click **"Add a new pending publisher"**
+4. Fill in:
+   - **PyPI Project Name**: `nninteractive-slicer-server`
+   - **Owner**: `coendevente` (your GitHub username/org)
+   - **Repository name**: `SlicerNNInteractive`
+   - **Workflow filename**: `release.yml`
+   - **Environment name**: `production`
+5. Click **"Add"**
+
+This creates a "reservation" that allows your GitHub workflow to create and publish the package automatically on first release.
+
+**Benefits of Trusted Publishing:**
+- ✅ No API tokens to manage or rotate
+- ✅ More secure (automatic OIDC authentication)
+- ✅ Scoped to specific workflows and repositories
+- ✅ Recommended by PyPI
+
+### Step 2: Create GitHub Environments
 
 Go to **Settings → Environments** and create two environments:
 
@@ -21,53 +63,31 @@ For the `production` environment, you can add protection rules:
 
 This adds an extra safety layer for production releases.
 
-### Step 2: Add Secrets to Environments
+### Step 3: Add Docker Hub Secrets
+
+Add Docker Hub credentials to both environments:
 
 #### For `test` environment:
 
-Add these secrets: **Settings → Environments → test → Add secret**
+**Settings → Environments → test → Add secret**
 
-1. **TEST_PYPI_API_TOKEN**
-   - Go to https://test.pypi.org/manage/account/token/
-   - Create a new API token
-   - Add it to the `test` environment
-
-2. **DOCKERHUB_USERNAME**
+1. **DOCKERHUB_USERNAME**
    - Your Docker Hub username (e.g., `coendevente`)
 
-3. **DOCKERHUB_TOKEN**
+2. **DOCKERHUB_TOKEN**
    - Go to https://hub.docker.com/settings/security
    - Create a new access token
    - Add it to the `test` environment
 
 #### For `production` environment:
 
-Add these secrets: **Settings → Environments → production → Add secret**
+**Settings → Environments → production → Add secret**
 
-1. **PYPI_API_TOKEN**
-   - Go to https://pypi.org/manage/account/token/
-   - Create a new API token with scope "Entire account" or specific to your project
-   - Add it to the `production` environment
-
-2. **DOCKERHUB_USERNAME**
+1. **DOCKERHUB_USERNAME**
    - Your Docker Hub username (same as above)
 
-3. **DOCKERHUB_TOKEN**
+2. **DOCKERHUB_TOKEN**
    - Same Docker Hub access token as above (or create a separate one for production)
-
-### Alternative: Repository Secrets (Simpler)
-
-If you prefer simpler setup and trust all contributors, you can use repository secrets instead:
-
-**Settings → Secrets and variables → Actions → New repository secret**
-
-Add all four secrets at the repository level:
-- `PYPI_API_TOKEN`
-- `TEST_PYPI_API_TOKEN`
-- `DOCKERHUB_USERNAME`
-- `DOCKERHUB_TOKEN`
-
-**Note:** This gives all workflows access to all secrets. Environments provide better isolation.
 
 ## 📋 Workflows Overview
 
