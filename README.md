@@ -181,19 +181,20 @@ If you would like to use a different port, say `1627`, replace `--port 1527` wit
 1. [Download and install latest version of **3D Slicer**](https://slicer.readthedocs.io/en/latest/user_guide/getting_started.html#installing-3d-slicer)
 2. [Install **NNInteractive** extension](https://slicer.readthedocs.io/en/latest/user_guide/extensions_manager.html#install-extensions)
 
-```
-EXTRA FOR HPC CONNECTION
-```
+
 3. Establish a SSH tunnel connection in your terminal:
+
 ```
 ssh -L <local-port-number>:<computing-node>:<hpc-port-number> <username>@<hpc-hostname>
 ```
-	* <local-port-number> - any number (for Windows has to be higher 1024)
-	* <computing-node> - node shown with squeue
-	* <hpc-port-number> - in the logs of the server #SBATCH --output (e.g. in logs/nninteractive_server.out)
-	* <username>@<hpc-hostname> - the same you enter logging to your HPC
-Example: `ssh -L 8888:t0029:1527 plgjosh@athena.cyfronet.pl`. You will be asked to log in with your password.
-
+* <local-port-number> - any number (for Windows has to be higher 1024)
+* <computing-node> - node shown with squeue
+* <hpc-port-number> - in the logs of the server #SBATCH --output (e.g. in logs/nninteractive_server.out)
+* <username>@<hpc-hostname> - the same you enter logging to your HPC
+	Example: `ssh -L 8888:t0029:1527 plgjosh@athena.cyfronet.pl`. You will be asked to log in with your password.
+```
+EXTRA FOR HPC CONNECTION
+```
 4. Go to the `nnInteractive` module in Slicer and in the `Configuration` tab type in the URL `http://localhost:<hpc-port-number>`.
 
 ## Usage
