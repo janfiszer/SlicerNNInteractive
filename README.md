@@ -43,6 +43,53 @@ The client machine _can_ be the same as the server machine.
 
 You can install the server side of `SlicerNNInteractive` in three different ways:
 
+##### Option 0 (HPC friendly): Using Singularity
+```
+EXTRA FOR HPC CONNECTION
+```
+```bash
+IMAGE_DIR=$SCRATCH/nninteractive_server
+IMAGE_FILEPATH="$IMAGE_DIR/image.sif"
+TMP_DIR=$MEMFS
+# if cuda not found error
+# `nvidia-smi` should return a device (athena NVIDIA A100-SXM4-40GB)
+
+# disable cache to not exceed $HOME storage limit
+export APPTAINER_DISABLE_CACHE=true APPTAINER_TMPDIR=$TMP_DIR/
+apptainer pull --disable-cache $IMAGE_FILEPATH docker://docker.io/coendevente/nninteractive-slicer-server:latest  
+
+apptainer run --nv $IMAGE_FILEPATH /opt/conda/envs/nnInteractive/bin/python3.12 /opt/server/main.py # --nv equivalent to docker --gpus all
+```
+
+Note that to have `$MEMFS` one has to request for it `-C memfs`
+
+An example sbatch parameters are:
+```bash
+#!/bin/bash -l
+
+#SBATCH -J "nnIntSrv"
+#SBATCH -N 1
+#SBATCH -C memfs
+## exclusive recommended with memfs, but increases the queuing time
+##SBATCH --exclusive 
+#SBATCH --ntasks-per-node=1
+## needed to for memfs and container storage 
+#SBATCH --mem-per-cpu=32GB
+#SBATCH --time=8:00:00
+#SBATCH -A plgfmri4-gpu-a100
+#SBATCH --gres=gpu:1
+#SBATCH --partition=plgrid-gpu-a100
+#SBATCH --output="logs/nninteractive_server.out"
+
+```
+
+At this point server should be running on HPC and you can connect the client (local machine where you run Slicer3D).
+
+The slurm script can be run:
+```
+sbatch  ./server/apptainer_run.sh 
+```
+
 ##### Option 1: Using Docker
 
 ```
@@ -133,7 +180,21 @@ If you would like to use a different port, say `1627`, replace `--port 1527` wit
 
 1. [Download and install latest version of **3D Slicer**](https://slicer.readthedocs.io/en/latest/user_guide/getting_started.html#installing-3d-slicer)
 2. [Install **NNInteractive** extension](https://slicer.readthedocs.io/en/latest/user_guide/extensions_manager.html#install-extensions)
-3. Go to the `nnInteractive` module in Slicer and in the `Configuration` tab type in the URL of the server you set up in the [server side](#server-side) installation procedure. This should look something like `http://remote_host_name:1527` or, if you run the server locally, `http://localhost:1527`. If running the server on the same Windows computer as 3D Slicer, you must use `localhost` (ignore that the server suggests that `0.0.0.0` may be used).
+
+```
+EXTRA FOR HPC CONNECTION
+```
+3. Establish a SSH tunnel connection in your terminal:
+```
+ssh -L <local-port-number>:<computing-node>:<hpc-port-number> <username>@<hpc-hostname>
+```
+	* <local-port-number> - any number (for Windows has to be higher 1024)
+	* <computing-node> - node shown with squeue
+	* <hpc-port-number> - in the logs of the server #SBATCH --output (e.g. in logs/nninteractive_server.out)
+	* <username>@<hpc-hostname> - the same you enter logging to your HPC
+Example: `ssh -L 8888:t0029:1527 plgjosh@athena.cyfronet.pl`. You will be asked to log in with your password.
+
+4. Go to the `nnInteractive` module in Slicer and in the `Configuration` tab type in the URL `http://localhost:<hpc-port-number>`.
 
 ## Usage
 
